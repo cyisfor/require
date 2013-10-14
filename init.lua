@@ -6,7 +6,7 @@
 -- uses the actual directory separator,
 -- though / should always work even in 'doze
 
--- automatically adds the '.lua' suffix. 
+-- automatically adds the '.lua' suffix.
 
 -- there is a loadResource function if that behavior is undesired
 -- but nothing should be cached in loaded or evaluated
@@ -21,7 +21,7 @@ if minetest.require == nil then
    local function minetestLoadResource(module,what)
       local path = minetest.get_modpath(module)
       if path == nil then
-         error("Could not find module "..module)
+         return nil
       end
       path = path..DIR_SEPARATOR..what
       local handle,err = io.open(path,"r")
@@ -30,6 +30,10 @@ if minetest.require == nil then
       end
       return handle
    end
+
+   -- returns value,err (or just value) which is whatever the module returns.
+   -- if err ~= nil, then the module was not found (other recoverable errors
+   -- forthcoming)
 
    local function minetestRequire(module,name)
       local key = module..'/'..name
@@ -44,7 +48,10 @@ if minetest.require == nil then
          return gotcha
       end
       handle = minetestLoadResource(module,name..'.lua')
-      local contents = handle:read("*a")   
+      if handle == nil then
+          return nil,"module not found"
+      end
+      local contents = handle:read("*a")
       handle:close()
       gotcha = assert(loadstring(contents,module.."/"..name))
       loaded[key] = gotcha
@@ -57,7 +64,7 @@ if minetest.require == nil then
       local key = module..'/'..name
       evaluated[key] = nil
    end
-   
+
    local function minetestReinit(module,name)
       minetestUninit(module,name)
       return minetestRequire(module,name)

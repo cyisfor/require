@@ -23,6 +23,9 @@ if minetest.require == nil then
       if path == nil then
          return nil
       end
+      if what == nil then
+          what = 'init.lua'
+      end
       path = path..DIR_SEPARATOR..what
       local handle,err = io.open(path,"r")
       if handle == nil then

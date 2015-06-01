@@ -39,6 +39,9 @@ if minetest.require == nil then
    -- forthcoming)
 
    local function minetestRequire(module,name)
+      if name == nil then
+         name = 'init'
+      end
       local key = module..'/'..name
       local gotcha = evaluated[key]
       if gotcha ~= nil then
@@ -50,7 +53,7 @@ if minetest.require == nil then
          evaluated[key] = gotcha
          return gotcha
       end
-      handle = minetestLoadResource(module,name..'.lua')
+      local handle = minetestLoadResource(module,name..'.lua')
       if handle == nil then
           return nil,"module not found"
       end
